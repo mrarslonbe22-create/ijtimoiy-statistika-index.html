@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ijtimoiy Statistika | Diplom loyihasi</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header h2 { font-size: 20px; margin-bottom: 10px; opacity: 0.9; }
+        .header p { font-size: 16px; opacity: 0.8; }
+        
+        /* Kartalar - 4 ta asosiy ko'rsatkich */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card h3 { color: #1e3c72; margin-bottom: 10px; }
+        .stat-value { font-size: 36px; font-weight: bold; color: #2a5298; margin: 10px 0; }
+        .stat-change { font-size: 14px; margin-top: 5px; }
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        /* 5 ta ijtimoiy masala kartalari */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .problem-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .problem-card:hover { transform: translateY(-5px); }
+        .problem-card h3 {
+            color: #1e3c72;
+            border-left: 4px solid #2a5298;
+            padding-left: 12px;
+            margin-bottom: 12px;
+        }
+        .formula {
+            background: #f0f2f5;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        .result { font-size: 28px; font-weight: bold; color: #2a5298; text-align: center; margin: 10px 0; }
+        .trend-up { color: #28a745; text-align: center; }
+        .trend-down { color: #dc3545; text-align: center; }
+        .solution { font-size: 13px; color: #555; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; }
+        
+        /* Grafiklar */
+        .graph-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .graph-title { font-size: 20px; margin-bottom: 15px; color: #1e3c72; font-weight: bold; }
+        .graph-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .graph-btn {
+            background: #e0e0e0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .graph-btn.active { background: #2a5298; color: white; }
+        canvas { max-height: 400px; width: 100%; }
+        
+        /* Jadval */
+        .table-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; }
+        tr:hover { background: #f5f5f5; }
+        
+        footer { text-align: center; margin-top: 30px; padding: 20px; color: #555; }
+        
+        @media (max-width: 700px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .problem-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 IJTIMOIY MASALALARNI YECHISHDA</h1>
+            <h2>STATISTIK HISOBLASH ALGORITMLARI</h2>
+            <p>O'zbekiston Respublikasi 2020-2025 yillar ijtimoiy-iqtisodiy ko'rsatkichlari tahlili</p>
+        </div>
+
+        <!-- 4 ta asosiy statistik karta -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>👥 Aholi soni</h3>
+                <div class="stat-value" id="current_aholi">-</div>
+                <div class="stat-change" id="aholi_change">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>💼 Bandlik darajasi</h3>
+                <div class="stat-value" id="current_bandlik">-</div>
+                <div class="stat-change" id="bandlik_change">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>📉 Kambag'allik darajasi</h3>
+                <div class="stat-value" id="current_kambagal">-</div>
+                <div class="stat-change" id="kambagal_change">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>🏭 Ishsizlar soni</h3>
+                <div class="stat-value" id="current_ishsiz">-</div>
+                <div class="stat-change" id="ishsiz_change">-</div>
+            </div>
+        </div>
+
+        <!-- 5 ta ijtimoiy masala kartalari -->
+        <div class="problem-grid" id="problemsGrid"></div>
+
+        <!-- Grafiklar -->
+        <div class="graph-section">
+            <div class="graph-title">📈 IJTIMOIY KO'RSATKICHLAR DINAMIKASI</div>
+            <div class="graph-buttons" id="graphButtons"></div>
+            <canvas id="mainChart"></canvas>
+        </div>
+
+        <!-- Jadval -->
+        <div class="table-section">
+            <h3 style="margin-bottom: 15px;">📋 MA'LUMOTLAR JADVALI</h3>
+            <table id="solutionsTable">
+                <thead><tr><th>Yil</th><th>Aholi (ming)</th><th>Bandlar</th><th>MLYa</th><th>Kambag'al</th><th>Bandlik %</th><th>Kambag'allik %</th></tr></thead>
+                <tbody id="tableBody"></tbody>
+             </table>
+        </div>
+
+        <footer>
+            <p>© 2025 Ijtimoiy statistika | Diplom loyihasi</p>
+        </footer>
+    </div>
+
+    <script>
+        // ========== MA'LUMOTLAR ==========
+        let yillar = [2020, 2021, 2022, 2023, 2024, 2025];
+        let aholi = [34558.9, 35271.3, 35874.4, 36421.8, 37543.2, 38236.7];
+        let bandlar = [13200, 13450, 13780, 14100, 14500, 14850];
+        let mlya = [19500, 19800, 20100, 20450, 21200, 21700];
+        let kambagal = [5200, 4900, 4600, 4010, 3200, 2220];
+        let mehnat_resurslari = [20200, 20500, 20850, 21100, 21800, 22300];
+        let iqtisodiy_nofaol = [5500, 5600, 5650, 5700, 5800, 5900];
+
+        let bandlikFoizi = [];
+        let kambagallikFoizi = [];
+        let ishsizlar = [];
+        let chart = null;
+
+        // Hisoblash
+        function calculateAll() {
+            bandlikFoizi = [];
+            kambagallikFoizi = [];
+            ishsizlar = [];
+            for(let i = 0; i < yillar.length; i++) {
+                bandlikFoizi.push(parseFloat((bandlar[i] / mlya[i] * 100).toFixed(2)));
+                kambagallikFoizi.push(parseFloat((kambagal[i] / aholi[i] * 100).toFixed(2)));
+                ishsizlar.push(mehnat_resurslari[i] - bandlar[i] - iqtisodiy_nofaol[i]);
+            }
+        }
+
+        // Kartalarni yangilash
+        function updateStatCards() {
+            let last = yillar.length - 1;
+            let prev = last - 1;
+            document.getElementById('current_aholi').innerHTML = aholi[last].toLocaleString();
+            let aChange = ((aholi[last] - aholi[prev]) / aholi[prev] * 100).toFixed(2);
+            document.getElementById('aholi_change').innerHTML = (aChange > 0 ? '📈 +' : '📉 ') + aChange + '%';
+            
+            document.getElementById('current_bandlik').innerHTML = bandlikFoizi[last];
+            let bChange = (bandlikFoizi[last] - bandlikFoizi[prev]).toFixed(2);
+            document.getElementById('bandlik_change').innerHTML = (bChange > 0 ? '📈 +' : '📉 ') + bChange + '%';
+            
+            document.getElementById('current_kambagal').innerHTML = kambagallikFoizi[last];
+            let kChange = (kambagallikFoizi[last] - kambagallikFoizi[prev]).toFixed(2);
+            document.getElementById('kambagal_change').innerHTML = (kChange > 0 ? '📈 +' : '📉 ') + Math.abs(kChange) + '%';
+            
+            document.getElementById('current_ishsiz').innerHTML = (ishsizlar[last] / 1000).toFixed(1);
+            let iChange = ((ishsizlar[last] - ishsizlar[prev]) / ishsizlar[prev] * 100).toFixed(2);
+            document.getElementById('ishsiz_change').innerHTML = (iChange > 0 ? '📈 +' : '📉 ') + Math.abs(iChange) + '%';
+        }
+
+        // Jadval
+        function updateTable() {
+            let html = '';
+            for(let i = 0; i < yillar.length; i++) {
+                html += `<tr>
+                    <td>${yillar[i]}</td>
+                    <td>${aholi[i].toLocaleString()}</td>
+                    <td>${bandlar[i]}</td>
+                    <td>${mlya[i]}</td>
+                    <td>${kambagal[i]}</td>
+                    <td>${bandlikFoizi[i]}%</td>
+                    <td>${kambagallikFoizi[i]}%</td>
+                </tr>`;
+            }
+            document.getElementById('tableBody').innerHTML = html;
+        }
+
+        // 5 ta ijtimoiy masala kartalari
+        const problems = [
+            { name: "Kambag'allik", formula: "P = (N_poor / N_total) × 100%", solution: "Ijtimoiy yordam, ish o'rinlari yaratish", get: () => kambagallikFoizi, unit: "%", trend: "down" },
+            { name: "Ishsizlik", formula: "U = (Unemployed / Labor_force) × 100%", solution: "Kasb-hunar o'rgatish, ish yarmarkalari", get: () => ishsizlar.map((u,i) => (u / mehnat_resurslari[i] * 100).toFixed(2)), unit: "%", trend: "down" },
+            { name: "Demografik yuk", formula: "DR = (Children+Elderly) / Working_age × 100%", solution: "Pensiya islohoti, bola nafaqalari", get: () => [49.2,49.5,49.6,49.7,49.6,49.7], unit: "%", trend: "up" },
+            { name: "Bandlik", formula: "ER = (Employed / Working_age) × 100%", solution: "Tadbirkorlikni qo'llab-quvvatlash", get: () => bandlikFoizi, unit: "%", trend: "up" },
+            { name: "Pensiya yuki", formula: "PR = (Elderly / Working_age) × 100%", solution: "Pensiya jamg'armasini kuchaytirish", get: () => [9.3,9.3,9.3,9.3,9.2,9.2], unit: "%", trend: "up" }
+        ];
+
+        function renderProblems() {
+            const grid = document.getElementById('problemsGrid');
+            grid.innerHTML = '';
+            for(let i = 0; i < problems.length; i++) {
+                const p = problems[i];
+                const val = p.get();
+                const last = val[val.length-1];
+                const first = val[0];
+                const change = (last - first).toFixed(1);
+                grid.innerHTML += `
+                    <div class="problem-card">
+                        <h3>${i+1}. ${p.name} muammosi</h3>
+                        <div class="formula">📐 ${p.formula}</div>
+                        <div class="result">${last}${p.unit}</div>
+                        <div class="${p.trend === 'up' ? 'trend-up' : 'trend-down'}">
+                            ${p.trend === 'up' ? '📈 +' : '📉 '}${Math.abs(change)}${p.unit}
+                        </div>
+                        <div class="solution">💡 Yechim: ${p.solution}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Grafiklar
+        const graphs = [
+            { name: "Aholi soni", get: () => aholi, color: "#1a73e8", label: "Aholi soni (ming kishi)" },
+            { name: "Kambag'allik", get: () => kambagallikFoizi, color: "#dc3545", label: "Kambag'allik (%)" },
+            { name: "Bandlik", get: () => bandlikFoizi, color: "#28a745", label: "Bandlik (%)" },
+            { name: "Ishsizlar", get: () => ishsizlar, color: "#fd7e14", label: "Ishsizlar (ming kishi)" }
+        ];
+
+        function renderGraphButtons() {
+            const container = document.getElementById('graphButtons');
+            container.innerHTML = '';
+            graphs.forEach((g, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'graph-btn' + (idx === 0 ? ' active' : '');
+                btn.textContent = g.name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.graph-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateGraph(g);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function updateGraph(g) {
+            if(chart) chart.destroy();
+            chart = new Chart(document.getElementById('mainChart'), {
+                type: 'line',
+                data: {
+                    labels: yillar,
+                    datasets: [{
+                        label: g.label,
+                        data: g.get(),
+                        borderColor: g.color,
+                        backgroundColor: g.color + '20',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+        }
+
+        // Boshlash
+        function init() {
+            calculateAll();
+            updateStatCards();
+            updateTable();
+            renderProblems();
+            renderGraphButtons();
+            updateGraph(graphs[0]);
+        }
+        init();
+    </script>
+</body>
+</html>
