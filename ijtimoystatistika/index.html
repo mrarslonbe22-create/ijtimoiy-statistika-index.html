@@ -23,7 +23,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         .header {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
@@ -38,12 +37,17 @@
             margin-bottom: 10px;
         }
 
-        .header p {
-            font-size: 16px;
+        .header h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
             opacity: 0.9;
         }
 
-        /* KARTALAR - 10 ta ijtimoiy masala */
+        .header p {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
         .problem-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -89,6 +93,18 @@
             margin: 10px 0;
         }
 
+        .trend-up {
+            color: #28a745;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .trend-down {
+            color: #dc3545;
+            font-size: 14px;
+            text-align: center;
+        }
+
         .solution {
             font-size: 13px;
             color: #555;
@@ -97,10 +113,6 @@
             margin-top: 10px;
         }
 
-        .trend-up { color: #28a745; font-size: 14px; }
-        .trend-down { color: #dc3545; font-size: 14px; }
-
-        /* GRAFIKLAR */
         .graph-section {
             background: white;
             border-radius: 15px;
@@ -112,6 +124,7 @@
             font-size: 20px;
             margin-bottom: 15px;
             color: #1e3c72;
+            font-weight: bold;
         }
 
         .graph-buttons {
@@ -140,12 +153,16 @@
             width: 100%;
         }
 
-        /* JADVAL */
         .table-section {
             background: white;
             border-radius: 15px;
             padding: 20px;
             overflow-x: auto;
+        }
+
+        .table-section h3 {
+            margin-bottom: 15px;
+            color: #1e3c72;
         }
 
         table {
@@ -176,8 +193,12 @@
         }
 
         @media (max-width: 700px) {
-            .problem-grid { grid-template-columns: 1fr; }
-            .header h1 { font-size: 20px; }
+            .problem-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -185,23 +206,20 @@
     <div class="container">
         <div class="header">
             <h1>📊 IJTIMOIY MASALALARNI YECHISHDA</h1>
-            <h1 style="font-size: 24px;">STATISTIK HISOBLASH ALGORITMLARI</h1>
+            <h2>STATISTIK HISOBLASH ALGORITMLARI</h2>
             <p>O'zbekiston Respublikasi 2020-2025 yillar ijtimoiy-iqtisodiy ko'rsatkichlari tahlili</p>
         </div>
 
-        <!-- 10 TA IJTIMOIY MASALA -->
         <div class="problem-grid" id="problemsGrid"></div>
 
-        <!-- GRAFIKLAR -->
         <div class="graph-section">
             <div class="graph-title">📈 IJTIMOIY KO'RSATKICHLAR DINAMIKASI</div>
             <div class="graph-buttons" id="graphButtons"></div>
             <canvas id="mainChart"></canvas>
         </div>
 
-        <!-- JADVAL -->
         <div class="table-section">
-            <h3 style="margin-bottom: 15px;">📋 IJTIMOIY MASALALAR VA YECHIMLAR JADVALI</h3>
+            <h3>📋 IJTIMOIY MASALALAR VA YECHIMLAR JADVALI</h3>
             <table id="solutionsTable">
                 <thead>
                     <tr><th>№</th><th>Ijtimoiy masala</th><th>Statistik algoritm</th><th>Yechim</th><th>2025 holat</th></tr>
@@ -211,107 +229,65 @@
         </div>
 
         <footer>
-            <p>© 2025 Ijtimoiy statistika | Diplom loyihasi | Barcha ma'lumotlar statistik qo'mita asosida</p>
+            <p>© 2025 Ijtimoiy statistika | Diplom loyihasi</p>
         </footer>
     </div>
 
     <script>
-        // ============================================
-        // MA'LUMOTLAR
-        // ============================================
+        // ========== MA'LUMOTLAR ==========
         const yillar = [2020, 2021, 2022, 2023, 2024, 2025];
         const aholi = [34558.9, 35271.3, 35874.4, 36421.8, 37543.2, 38236.7];
-        const bolalar = [9800, 9900, 10000, 10100, 10200, 10300];
-        const qariyalar = [2100, 2150, 2200, 2250, 2300, 2350];
-        const mehnatYoshidagilar = [22658.9, 23221.3, 23674.4, 24071.8, 25043.2, 25586.7];
+        const mehnatYosh = [22658.9, 23221.3, 23674.4, 24071.8, 25043.2, 25586.7];
         const bandlar = [13200, 13450, 13780, 14100, 14500, 14850];
         const ishsizlar = [1500, 1450, 1420, 1400, 1380, 1350];
         const kambagal = [5200, 4900, 4600, 4010, 3200, 2220];
-        const uyJoylar = [5800, 5950, 6100, 6250, 6400, 6550];
-        const uyXojaliklari = [6200, 6350, 6500, 6650, 6800, 6950];
+        const bolalar = [9800, 9900, 10000, 10100, 10200, 10300];
+        const qariyalar = [2100, 2150, 2200, 2250, 2300, 2350];
 
-        // ============================================
-        // HISOBLASH FUNKSIYALARI
-        // ============================================
-        
-        // 1. Kambag'allik darajasi
-        function getKambagallik() {
+        // ========== HISOBLASH FUNKSIYALARI ==========
+        function kambagallik() {
             return kambagal.map((k, i) => (k / aholi[i] * 100).toFixed(2));
         }
 
-        // 2. Ishsizlik darajasi
-        function getIshsizlik() {
-            return ishsizlar.map((u, i) => (u / mehnatYoshidagilar[i] * 100).toFixed(2));
+        function ishsizlik() {
+            return ishsizlar.map((u, i) => (u / mehnatYosh[i] * 100).toFixed(2));
         }
 
-        // 3. Demografik yuk
-        function getDemografikYuk() {
-            return bolalar.map((b, i) => ((b + qariyalar[i]) / mehnatYoshidagilar[i] * 100).toFixed(2));
+        function demografikYuk() {
+            return bolalar.map((b, i) => ((b + qariyalar[i]) / mehnatYosh[i] * 100).toFixed(2));
         }
 
-        // 4. Bandlik darajasi
-        function getBandlik() {
-            return bandlar.map((b, i) => (b / mehnatYoshidagilar[i] * 100).toFixed(2));
+        function bandlik() {
+            return bandlar.map((b, i) => (b / mehnatYosh[i] * 100).toFixed(2));
         }
 
-        // 5. Pensiya yuki
-        function getPensiyaYuki() {
-            return qariyalar.map((q, i) => (q / mehnatYoshidagilar[i] * 100).toFixed(2));
+        function pensiyaYuki() {
+            return qariyalar.map((q, i) => (q / mehnatYosh[i] * 100).toFixed(2));
         }
 
-        // 6. Uy-joy ta'minoti
-        function getUyJoy() {
-            return uyJoylar.map((uy, i) => (uy / uyXojaliklari[i] * 100).toFixed(1));
-        }
-
-        // 7. Prognoz (chiziqli trend)
-        function linearTrend(data, progYears = 5) {
-            const n = data.length;
-            let t = [...Array(n).keys()];
-            let sumT = t.reduce((a, b) => a + b, 0);
-            let sumY = data.reduce((a, b) => a + b, 0);
-            let sumTY = t.reduce((a, b, i) => a + b * data[i], 0);
-            let sumT2 = t.reduce((a, b) => a + b * b, 0);
-            
-            let b_coef = (n * sumTY - sumT * sumY) / (n * sumT2 - sumT * sumT);
-            let a_coef = (sumY - b_coef * sumT) / n;
-            
-            let prog = [];
-            for (let i = n; i < n + progYears; i++) {
-                prog.push(a_coef + b_coef * i);
-            }
-            return prog;
-        }
-
-        // ============================================
-        // KARTALARNI YARATISH
-        // ============================================
+        // ========== KARTALAR ==========
         const problems = [
-            { name: "Kambag'allik muammosi", formula: "P = (N_poor / N_total) × 100%", solution: "Ijtimoiy yordam, ish o'rinlari yaratish", getValue: getKambagallik, unit: "%", trend: "down" },
-            { name: "Ishsizlik muammosi", formula: "U = (Unemployed / Labor_force) × 100%", solution: "Kasb-hunar o'rgatish, ish yarmarkalari", getValue: getIshsizlik, unit: "%", trend: "down" },
-            { name: "Demografik yuk", formula: "DR = (Children+Elderly)/Working_age × 100%", solution: "Pensiya islohoti, bola nafaqalari", getValue: getDemografikYuk, unit: "%", trend: "up" },
-            { name: "Bandlik muammosi", formula: "ER = (Employed / Working_age) × 100%", solution: "Tadbirkorlikni qo'llab-quvvatlash", getValue: getBandlik, unit: "%", trend: "up" },
-            { name: "Pensiya yuki", formula: "PR = (Elderly / Working_age) × 100%", solution: "Pensiya jamg'armasi, yoshni oshirish", getValue: getPensiyaYuki, unit: "%", trend: "up" },
-            { name: "Uy-joy ta'minoti", formula: "HR = (Housing_units / Households) × 100%", solution: "Ijtimoiy uy-joy, ipoteka", getValue: getUyJoy, unit: "%", trend: "up" },
-            { name: "Prognoz (2030)", formula: "y = a + b·t (chiziqli trend)", solution: "Strategik rejalashtirish", getValue: () => linearTrend(aholi, 5).map(v => v.toFixed(0)), unit: "ming kishi", trend: "up" }
+            { name: "Kambag'allik", formula: "P = (N_poor / N_total) × 100%", solution: "Ijtimoiy yordam, ish o'rinlari", get: kambagallik, unit: "%", trend: "down" },
+            { name: "Ishsizlik", formula: "U = (Unemployed / Labor_force) × 100%", solution: "Kasb-hunar o'rgatish", get: ishsizlik, unit: "%", trend: "down" },
+            { name: "Demografik yuk", formula: "DR = (Children+Elderly)/Working_age × 100%", solution: "Pensiya islohoti", get: demografikYuk, unit: "%", trend: "up" },
+            { name: "Bandlik", formula: "ER = (Employed / Working_age) × 100%", solution: "Tadbirkorlikni qo'llab-quvvatlash", get: bandlik, unit: "%", trend: "up" },
+            { name: "Pensiya yuki", formula: "PR = (Elderly / Working_age) × 100%", solution: "Pensiya jamg'armasi", get: pensiyaYuki, unit: "%", trend: "up" }
         ];
 
         function renderCards() {
             const grid = document.getElementById('problemsGrid');
             grid.innerHTML = '';
-            
             for (let i = 0; i < problems.length; i++) {
                 const p = problems[i];
-                const values = p.getValue();
-                const lastValue = values[values.length - 1];
-                const firstValue = values[0];
-                const change = (lastValue - firstValue).toFixed(1);
-                
+                const val = p.get();
+                const last = val[val.length - 1];
+                const first = val[0];
+                const change = (last - first).toFixed(1);
                 grid.innerHTML += `
                     <div class="problem-card">
                         <h3>${i+1}. ${p.name}</h3>
                         <div class="formula">📐 ${p.formula}</div>
-                        <div class="result">${lastValue}${p.unit}</div>
+                        <div class="result">${last}${p.unit}</div>
                         <div class="${p.trend === 'up' ? 'trend-up' : 'trend-down'}">
                             ${p.trend === 'up' ? '📈 +' : '📉 '}${Math.abs(change)}${p.unit}
                         </div>
@@ -321,45 +297,36 @@
             }
         }
 
-        // ============================================
-        // JADVAL
-        // ============================================
+        // ========== JADVAL ==========
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            
-            const allProblems = [
-                [1, "Kambag'allik", "P = (N_poor/N_total)×100%", "Ijtimoiy yordam", getKambagallik()[5] + "%"],
-                [2, "Ishsizlik", "U = (Unemployed/Labor_force)×100%", "Kasb-hunar o'rgatish", getIshsizlik()[5] + "%"],
-                [3, "Demografik yuk", "DR = (Children+Elderly)/Working_age×100%", "Pensiya islohoti", getDemografikYuk()[5] + "%"],
-                [4, "Bandlik", "ER = (Employed/Working_age)×100%", "Tadbirkorlik", getBandlik()[5] + "%"],
-                [5, "Pensiya yuki", "PR = (Elderly/Working_age)×100%", "Pensiya jamg'armasi", getPensiyaYuki()[5] + "%"],
-                [6, "Uy-joy ta'minoti", "HR = Housing/Households×100%", "Ijtimoiy uy-joy", getUyJoy()[5] + "%"]
+            const data = [
+                [1, "Kambag'allik", "P = (N_poor/N_total)×100%", "Ijtimoiy yordam", kambagallik()[5] + "%"],
+                [2, "Ishsizlik", "U = (Unemployed/Labor_force)×100%", "Kasb-hunar o'rgatish", ishsizlik()[5] + "%"],
+                [3, "Demografik yuk", "DR = (Children+Elderly)/Working_age×100%", "Pensiya islohoti", demografikYuk()[5] + "%"],
+                [4, "Bandlik", "ER = (Employed/Working_age)×100%", "Tadbirkorlik", bandlik()[5] + "%"],
+                [5, "Pensiya yuki", "PR = (Elderly/Working_age)×100%", "Pensiya jamg'armasi", pensiyaYuki()[5] + "%"]
             ];
-            
-            for (let p of allProblems) {
-                tbody.innerHTML += `<tr>${p.map(v => `<td>${v}</td>`).join('')}</tr>`;
+            for (let row of data) {
+                tbody.innerHTML += `<tr>${row.map(c => `<td>${c}</td>`).join('')}</tr>`;
             }
         }
 
-        // ============================================
-        // GRAFIKLAR
-        // ============================================
+        // ========== GRAFIKLAR ==========
         let chart = null;
-        
-        const graphTypes = [
-            { name: "Kambag'allik", getData: getKambagallik, color: "#dc3545", label: "Kambag'allik darajasi (%)" },
-            { name: "Ishsizlik", getData: getIshsizlik, color: "#fd7e14", label: "Ishsizlik darajasi (%)" },
-            { name: "Demografik yuk", getData: getDemografikYuk, color: "#6f42c1", label: "Demografik yuk (%)" },
-            { name: "Bandlik", getData: getBandlik, color: "#28a745", label: "Bandlik darajasi (%)" },
-            { name: "Pensiya yuki", getData: getPensiyaYuki, color: "#17a2b8", label: "Pensiya yuki (%)" }
+        const graphs = [
+            { name: "Kambag'allik", get: kambagallik, color: "#dc3545", label: "Kambag'allik (%)" },
+            { name: "Ishsizlik", get: ishsizlik, color: "#fd7e14", label: "Ishsizlik (%)" },
+            { name: "Demografik yuk", get: demografikYuk, color: "#6f42c1", label: "Demografik yuk (%)" },
+            { name: "Bandlik", get: bandlik, color: "#28a745", label: "Bandlik (%)" },
+            { name: "Pensiya yuki", get: pensiyaYuki, color: "#17a2b8", label: "Pensiya yuki (%)" }
         ];
-        
-        function renderGraphButtons() {
+
+        function renderButtons() {
             const container = document.getElementById('graphButtons');
             container.innerHTML = '';
-            
-            graphTypes.forEach((g, idx) => {
+            graphs.forEach((g, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'graph-btn' + (idx === 0 ? ' active' : '');
                 btn.textContent = g.name;
@@ -371,53 +338,33 @@
                 container.appendChild(btn);
             });
         }
-        
-        function updateGraph(graphType) {
-            const data = graphType.getData().map(Number);
-            
+
+        function updateGraph(g) {
+            const data = g.get().map(Number);
             if (chart) chart.destroy();
-            
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            chart = new Chart(ctx, {
+            chart = new Chart(document.getElementById('mainChart'), {
                 type: 'line',
                 data: {
                     labels: yillar,
                     datasets: [{
-                        label: graphType.label,
+                        label: g.label,
                         data: data,
-                        borderColor: graphType.color,
-                        backgroundColor: graphType.color + '20',
+                        borderColor: g.color,
+                        backgroundColor: g.color + '20',
                         borderWidth: 3,
                         pointRadius: 6,
-                        pointBackgroundColor: graphType.color,
                         fill: true
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => `${ctx.raw}%`
-                            }
-                        }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: true }
             });
         }
-        
-        // ============================================
-        // BOSHLASH
-        // ============================================
-        function init() {
-            renderCards();
-            renderTable();
-            renderGraphButtons();
-            updateGraph(graphTypes[0]);
-        }
-        
-        init();
+
+        // ========== BOSHLASH ==========
+        renderCards();
+        renderTable();
+        renderButtons();
+        updateGraph(graphs[0]);
     </script>
 </body>
 </html>
