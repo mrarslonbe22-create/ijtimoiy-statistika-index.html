@@ -1,1 +1,413 @@
-# ijtimoiy-statistika-index.html
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ijtimoiy masalalarni yechishda statistik algoritmlar</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; }
+        
+        /* Container */
+        .container { max-width: 1400px; margin: auto; padding: 20px; }
+        
+        /* Masala kartalari */
+        .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .problem-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .problem-card h3 { color: #1e3c72; margin-bottom: 15px; border-left: 4px solid #2a5298; padding-left: 12px; }
+        .problem-card .formula { background: #f8f9fa; padding: 10px; border-radius: 8px; font-family: monospace; margin: 10px 0; }
+        .problem-card .result { font-size: 24px; font-weight: bold; color: #2a5298; text-align: center; margin: 10px 0; }
+        .problem-card .desc { color: #555; font-size: 14px; margin-top: 10px; }
+        
+        /* Grafiklar */
+        .graph-section { background: white; border-radius: 15px; padding: 20px; margin-top: 20px; }
+        .graph-title { font-size: 20px; margin-bottom: 15px; color: #1e3c72; }
+        .graph-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .graph-btn { background: #e0e0e0; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+        .graph-btn.active { background: #2a5298; color: white; }
+        canvas { max-height: 400px; width: 100%; }
+        
+        /* Yechimlar jadvali */
+        .solution-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; }
+        .solution-table th, .solution-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .solution-table th { background: #1e3c72; color: white; }
+        .solution-table tr:hover { background: #f5f5f5; }
+        
+        @media (max-width: 768px) { .problem-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Ijtimoiy masalalarni yechishda statistik hisoblash algoritmlari</h1>
+        <p>10 ta asosiy ijtimoiy muammo va ularni hal qilishning matematik-statistik usullari</p>
+    </div>
+
+    <div class="container">
+        <!-- 10 ta ijtimoiy masala kartalari -->
+        <div class="problem-grid">
+            
+            <!-- 1. Kambag'allik muammosi -->
+            <div class="problem-card">
+                <h3>📉 1. KAMBAG'ALLIK MUAMMOSI</h3>
+                <div class="formula">Algoritm: P = (N_poor / N_total) × 100%</div>
+                <div class="result" id="kambagallik_natija">-</div>
+                <div class="desc">👉 Yechim: Kambag'allikni qisqartirish davlat dasturlari, ijtimoiy yordam, ish o'rinlari yaratish</div>
+            </div>
+            
+            <!-- 2. Ishsizlik muammosi -->
+            <div class="problem-card">
+                <h3>👔 2. ISHSIZLIK MUAMMOSI</h3>
+                <div class="formula">Algoritm: U = (Unemployed / Labor_force) × 100%</div>
+                <div class="result" id="ishsizlik_natija">-</div>
+                <div class="desc">👉 Yechim: Kasb-hunar o'rgatish, ish yarmarkalari, kichik biznesni rivojlantirish</div>
+            </div>
+            
+            <!-- 3. Demografik yuk -->
+            <div class="problem-card">
+                <h3>👶 3. DEMOGRAFIK YUK MUAMMOSI</h3>
+                <div class="formula">Algoritm: DR = (Children + Elderly) / Working_age × 100%</div>
+                <div class="result" id="demografik_yuk_natija">-</div>
+                <div class="desc">👉 Yechim: Pensiya islohoti, bolalar nafaqalari, immigratsiya siyosati</div>
+            </div>
+            
+            <!-- 4. Daromad tengsizligi -->
+            <div class="problem-card">
+                <h3>⚖️ 4. DAROMAD TENGsIZLIGI (Jini)</h3>
+                <div class="formula">Algoritm: Gini = (AUC_ideal - AUC_real) / AUC_ideal</div>
+                <div class="result" id="jini_natija">-</div>
+                <div class="desc">👉 Yechim: Progressiv soliq tizimi, ijtimoiy transfertlar, minimal ish haqini oshirish</div>
+            </div>
+            
+            <!-- 5. Migratsiya muammosi -->
+            <div class="problem-card">
+                <h3>🚶 5. MIGRATSIYA SALDOSI</h3>
+                <div class="formula">Algoritm: NM = Immigration - Emigration</div>
+                <div class="result" id="migratsiya_natija">-</div>
+                <div class="desc">👉 Yechim: Mahalliy ish o'rinlarini yaratish, mintaqaviy rivojlanish</div>
+            </div>
+            
+            <!-- 6. Bandlik muammosi -->
+            <div class="problem-card">
+                <h3>💼 6. BANDLIK MUAMMOSI</h3>
+                <div class="formula">Algoritm: ER = (Employed / Working_age) × 100%</div>
+                <div class="result" id="bandlik_natija">-</div>
+                <div class="desc">👉 Yechim: Yangi ish o'rinlari, kasb-hunar ta'limi, tadbirkorlikni qo'llab-quvvatlash</div>
+            </div>
+            
+            <!-- 7. Pensiya yuki -->
+            <div class="problem-card">
+                <h3>👴 7. PENSIYA YUKI MUAMMOSI</h3>
+                <div class="formula">Algoritm: PR = (Elderly / Working_age) × 100%</div>
+                <div class="result" id="pensiya_yuk_natija">-</div>
+                <div class="desc">👉 Yechim: Pensiya yoshini oshirish, jamg'arib boriladigan tizim</div>
+            </div>
+            
+            <!-- 8. Uy-joy muammosi -->
+            <div class="problem-card">
+                <h3>🏠 8. UY-JOY TA'MINOTI</h3>
+                <div class="formula">Algoritm: HR = (Housing_units / Households) × 100%</div>
+                <div class="result" id="uyjoy_natija">-</div>
+                <div class="desc">👉 Yechim: Ipoteka dasturlari, ijtimoiy uy-joy qurilishi</div>
+            </div>
+            
+            <!-- 9. Inson taraqqiyoti indeksi -->
+            <div class="problem-card">
+                <h3>📚 9. INSON TARAQQIYOTI INDEKSI (HDI)</h3>
+                <div class="formula">Algoritm: HDI = (Life_Index + Edu_Index + Income_Index) / 3</div>
+                <div class="result" id="hdi_natija">-</div>
+                <div class="desc">👉 Yechim: Ta'lim, sog'liqni saqlash va turmush darajasini oshirish</div>
+            </div>
+            
+            <!-- 10. Tendentsiya prognozi -->
+            <div class="problem-card">
+                <h3>🔮 10. IJTIMOIY PROGNOZLASH</h3>
+                <div class="formula">Algoritm: y = a + b·t (Chiziqli trend)</div>
+                <div class="result" id="prognoz_natija">-</div>
+                <div class="desc">👉 Yechim: Statistika asosida kelajakni bashorat qilish va strategik rejalashtirish</div>
+            </div>
+        </div>
+
+        <!-- Grafiklar bo'limi -->
+        <div class="graph-section">
+            <div class="graph-title">📈 IJTIMOIY KO'RSATKICHLAR DINAMIKASI (2020-2025)</div>
+            <div class="graph-buttons">
+                <button class="graph-btn active" onclick="showGraph('kambagallik')">Kambag'allik</button>
+                <button class="graph-btn" onclick="showGraph('ishsizlik')">Ishsizlik</button>
+                <button class="graph-btn" onclick="showGraph('demografik_yuk')">Demografik yuk</button>
+                <button class="graph-btn" onclick="showGraph('bandlik')">Bandlik</button>
+                <button class="graph-btn" onclick="showGraph('pensiya_yuk')">Pensiya yuki</button>
+                <button class="graph-btn" onclick="showGraph('prognoz')">Prognoz (2026-2030)</button>
+            </div>
+            <canvas id="mainChart"></canvas>
+        </div>
+
+        <!-- Yechimlar jadvali -->
+        <h3 style="margin: 20px 0 10px; color: #1e3c72;">📋 IJTIMOIY MASALALAR VA ULARNING STATISTIK YECHIMLARI</h3>
+        <table class="solution-table">
+            <thead>
+                <tr><th>№</th><th>Ijtimoiy masala</th><th>Statistik algoritm</th><th>Amaliy yechim</th><th>2025 holat</th></tr>
+            </thead>
+            <tbody id="solutionsTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // ============================================
+        // MA'LUMOTLAR
+        // ============================================
+        const yillar = [2020, 2021, 2022, 2023, 2024, 2025];
+        const aholi = [34558.9, 35271.3, 35874.4, 36421.8, 37543.2, 38236.7];
+        const bolalar = [9800, 9900, 10000, 10100, 10200, 10300];     // 0-14 yosh
+        const qariyalar = [2100, 2150, 2200, 2250, 2300, 2350];         // 65+ yosh
+        const mehnat_yoshidagilar = [22658.9, 23221.3, 23674.4, 24071.8, 25043.2, 25586.7];
+        const bandlar = [13200, 13450, 13780, 14100, 14500, 14850];
+        const ishsizlar = [1500, 1450, 1420, 1400, 1380, 1350];
+        const kambagal = [5200, 4900, 4600, 4010, 3200, 2220];
+        const immigratsiya = [120, 115, 108, 105, 100, 95];
+        const emigratsiya = [95, 98, 102, 108, 115, 120];
+        const uyJoylar = [5800, 5950, 6100, 6250, 6400, 6550];
+        const uyXojaliklari = [6200, 6350, 6500, 6650, 6800, 6950];
+        
+        // Umr ko'rish indeksi (yillik)
+        const umrKorish = [71.2, 71.4, 71.6, 71.9, 72.1, 72.3];
+        const talimIndeksi = [0.78, 0.79, 0.80, 0.81, 0.82, 0.83];
+        const daromadIndeksi = [0.72, 0.73, 0.74, 0.75, 0.77, 0.78];
+        
+        let chart = null;
+        
+        // ============================================
+        // 1. KAMBAG'ALLIK DARAJASI
+        // ============================================
+        function kambagallikDarajasi() {
+            return kambagal.map((k, i) => (k / aholi[i] * 100).toFixed(2));
+        }
+        
+        // ============================================
+        // 2. ISHSIZLIK DARAJASI
+        // ============================================
+        function ishsizlikDarajasi() {
+            return ishsizlar.map((u, i) => (u / mehnat_yoshidagilar[i] * 100).toFixed(2));
+        }
+        
+        // ============================================
+        // 3. DEMOGRAFIK YUK
+        // ============================================
+        function demografikYuk() {
+            return bolalar.map((b, i) => ((b + qariyalar[i]) / mehnat_yoshidagilar[i] * 100).toFixed(2));
+        }
+        
+        // ============================================
+        // 4. JINI KO'EFFITSIENTI (soddalashtirilgan)
+        // ============================================
+        function jiniKoeffitsienti() {
+            // Daromad taqsimoti (5 guruh)
+            const daromadGuruhlari = [
+                [8, 12, 18, 22, 40],  // 2020
+                [8, 12, 18, 22, 40],  // 2021
+                [8, 13, 18, 22, 39],  // 2022
+                [9, 13, 18, 22, 38],  // 2023
+                [9, 13, 19, 22, 37],  // 2024
+                [10, 13, 19, 22, 36]   // 2025
+            ];
+            
+            return daromadGuruhlari.map(g => {
+                let cumSum = 0, cumLorenz = 0;
+                for(let i = 0; i < g.length; i++) {
+                    cumSum += g[i];
+                    cumLorenz += cumSum;
+                }
+                let gini = 1 - (2 * cumLorenz / (g.length * cumSum) + 1/g.length);
+                return (gini * 100).toFixed(1);
+            });
+        }
+        
+        // ============================================
+        // 5. MIGRATSIYA SALDOSI
+        // ============================================
+        function migratsiyaSaldosi() {
+            return immigratsiya.map((imm, i) => imm - emigratsiya[i]);
+        }
+        
+        // ============================================
+        // 6. BANDLIK DARAJASI
+        // ============================================
+        function bandlikDarajasi() {
+            return bandlar.map((b, i) => (b / mehnat_yoshidagilar[i] * 100).toFixed(2));
+        }
+        
+        // ============================================
+        // 7. PENSIYA YUKI
+        // ============================================
+        function pensiyaYuki() {
+            return qariyalar.map((q, i) => (q / mehnat_yoshidagilar[i] * 100).toFixed(2));
+        }
+        
+        // ============================================
+        // 8. UY-JOY TA'MINOTI
+        // ============================================
+        function uyjoyTaMinoti() {
+            return uyJoylar.map((uy, i) => (uy / uyXojaliklari[i] * 100).toFixed(1));
+        }
+        
+        // ============================================
+        // 9. INSON TARAQQIYOTI INDEKSI (HDI)
+        // ============================================
+        function hdiIndeksi() {
+            return umrKorish.map((umr, i) => {
+                let lifeIndex = (umr - 20) / (85 - 20);
+                let eduIndex = talimIndeksi[i];
+                let incomeIndex = daromadIndeksi[i];
+                let hdi = (lifeIndex + eduIndex + incomeIndex) / 3;
+                return (hdi * 100).toFixed(1);
+            });
+        }
+        
+        // ============================================
+        // 10. PROGNOZ (Chiziqli trend)
+        // ============================================
+        function linearTrend(data, yillarProg = 5) {
+            const n = data.length;
+            let t = [...Array(n).keys()];
+            let sumT = t.reduce((a,b) => a+b, 0);
+            let sumY = data.reduce((a,b) => a+b, 0);
+            let sumTY = t.reduce((a,b,i) => a + b*data[i], 0);
+            let sumT2 = t.reduce((a,b) => a + b*b, 0);
+            
+            let b_coef = (n*sumTY - sumT*sumY) / (n*sumT2 - sumT*sumT);
+            let a_coef = (sumY - b_coef*sumT) / n;
+            
+            let prognoz = [];
+            for(let i = n; i < n + yillarProg; i++) {
+                prognoz.push(a_coef + b_coef * i);
+            }
+            return prognoz;
+        }
+        
+        // ============================================
+        // NATIJALARNI EKRANGA CHIQARISH
+        // ============================================
+        function displayResults() {
+            // Kartalar
+            const kd = kambagallikDarajasi();
+            document.getElementById('kambagallik_natija').innerHTML = `${kd[kd.length-1]}% (2025) <span style="font-size:14px;">⬇️ ${(kd[0]-kd[kd.length-1]).toFixed(1)}%</span>`;
+            
+            const id = ishsizlikDarajasi();
+            document.getElementById('ishsizlik_natija').innerHTML = `${id[id.length-1]}% (2025) <span style="font-size:14px;">⬇️ ${(id[0]-id[id.length-1]).toFixed(1)}%</span>`;
+            
+            const dy = demografikYuk();
+            document.getElementById('demografik_yuk_natija').innerHTML = `${dy[dy.length-1]}% (100 mehnat yoshidagiga ${dy[dy.length-1]} nafar nofaol)`;
+            
+            const jini = jiniKoeffitsienti();
+            document.getElementById('jini_natija').innerHTML = `${jini[jini.length-1]}% (0= teng, 100= noteng) <span style="font-size:14px;">⬇️ ${(jini[0]-jini[jini.length-1]).toFixed(1)}%</span>`;
+            
+            const ms = migratsiyaSaldosi();
+            document.getElementById('migratsiya_natija').innerHTML = `${ms[ms.length-1] > 0 ? '+' : ''}${ms[ms.length-1]} ming kishi (2025)`;
+            
+            const bd = bandlikDarajasi();
+            document.getElementById('bandlik_natija').innerHTML = `${bd[bd.length-1]}% (2025) <span style="font-size:14px;">⬆️ ${(bd[bd.length-1]-bd[0]).toFixed(1)}%</span>`;
+            
+            const py = pensiyaYuki();
+            document.getElementById('pensiya_yuk_natija').innerHTML = `${py[py.length-1]}% (100 ishchiga ${py[py.length-1]} nafar pensioner)`;
+            
+            const ut = uyjoyTaMinoti();
+            document.getElementById('uyjoy_natija').innerHTML = `${ut[ut.length-1]}% (2025) <span style="font-size:14px;">⬆️ ${(ut[ut.length-1]-ut[0]).toFixed(1)}%</span>`;
+            
+            const hdi = hdiIndeksi();
+            document.getElementById('hdi_natija').innerHTML = `${hdi[hdi.length-1]} ball (100 balldan) <span style="font-size:14px;">⬆️ ${(hdi[hdi.length-1]-hdi[0]).toFixed(1)}</span>`;
+            
+            const prog = linearTrend(aholi, 5);
+            document.getElementById('prognoz_natija').innerHTML = `2030: ${prog[4].toFixed(0)} ming kishi (2020: ${aholi[0]} ming)`;
+            
+            // Jadval
+            const solutionsTable = document.getElementById('solutionsTable');
+            const problems = [
+                [1, "Kambag'allik", "P = (N_poor / N_total) × 100%", "Ijtimoiy yordam, ish o'rinlari", kd[kd.length-1] + "%"],
+                [2, "Ishsizlik", "U = (Unemployed / Labor_force) × 100%", "Kasb-hunar o'rgatish, ish yarmarkalari", id[id.length-1] + "%"],
+                [3, "Demografik yuk", "DR = (Children+Elderly)/Working_age × 100%", "Pensiya islohoti, bola nafaqalari", dy[dy.length-1] + "%"],
+                [4, "Daromad tengsizligi", "Gini = 1 - Σ(p_i)(2Q_i-1)", "Progressiv soliq, ijtimoiy transfertlar", jini[jini.length-1] + "%"],
+                [5, "Migratsiya", "NM = Immigration - Emigration", "Mahalliy ish o'rinlari, mintaqaviy rivojlanish", ms[ms.length-1] + " ming"],
+                [6, "Bandlik", "ER = (Employed / Working_age) × 100%", "Tadbirkorlik, investitsiyalar", bd[bd.length-1] + "%"],
+                [7, "Pensiya yuki", "PR = (Elderly / Working_age) × 100%", "Pensiya jamg'armasi, yoshni oshirish", py[py.length-1] + "%"],
+                [8, "Uy-joy ta'minoti", "HR = (Housing_units / Households) × 100%", "Ijtimoiy uy-joy, ipoteka", ut[ut.length-1] + "%"],
+                [9, "Inson taraqqiyoti", "HDI = (Life+Edu+Income)/3", "Ta'lim, sog'liqni saqlash, daromad", hdi[hdi.length-1] + " ball"],
+                [10, "Prognozlash", "y = a + b·t (chiziqli trend)", "Strategik rejalashtirish", prog[4].toFixed(0) + " ming (2030)"]
+            ];
+            
+            solutionsTable.innerHTML = problems.map(p => `<tr>${p.map(v => `<td>${v}</td>`).join('')}</tr>`).join('');
+        }
+        
+        // ============================================
+        // GRAFIKLAR
+        // ============================================
+        function showGraph(type) {
+            // Tugmalarni yangilash
+            document.querySelectorAll('.graph-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let data = [];
+            let label = '';
+            let color = '#2a5298';
+            
+            switch(type) {
+                case 'kambagallik':
+                    data = kambagallikDarajasi().map(Number);
+                    label = 'Kambag\'allik darajasi (%)';
+                    color = '#dc3545';
+                    break;
+                case 'ishsizlik':
+                    data = ishsizlikDarajasi().map(Number);
+                    label = 'Ishsizlik darajasi (%)';
+                    color = '#fd7e14';
+                    break;
+                case 'demografik_yuk':
+                    data = demografikYuk().map(Number);
+                    label = 'Demografik yuk koeffitsienti (%)';
+                    color = '#6f42c1';
+                    break;
+                case 'bandlik':
+                    data = bandlikDarajasi().map(Number);
+                    label = 'Bandlik darajasi (%)';
+                    color = '#28a745';
+                    break;
+                case 'pensiya_yuk':
+                    data = pensiyaYuki().map(Number);
+                    label = 'Pensiya yuki (%)';
+                    color = '#17a2b8';
+                    break;
+                case 'prognoz':
+                    const prog = linearTrend(aholi, 5);
+                    const progYillar = [...yillar, 2026, 2027, 2028, 2029, 2030];
+                    data = [...aholi, ...prog];
+                    label = 'Aholi soni (ming kishi) - prognoz';
+                    color = '#1e3c72';
+                    if(chart) chart.destroy();
+                    chart = new Chart(document.getElementById('mainChart'), {
+                        type: 'line',
+                        data: { labels: progYillar, datasets: [{ label: label, data: data, borderColor: color, borderWidth: 3, pointRadius: 5, fill: true, backgroundColor: color + '20' }] },
+                        options: { responsive: true, maintainAspectRatio: true }
+                    });
+                    return;
+            }
+            
+            if(chart) chart.destroy();
+            chart = new Chart(document.getElementById('mainChart'), {
+                type: 'line',
+                data: { labels: yillar, datasets: [{ label: label, data: data, borderColor: color, borderWidth: 3, pointRadius: 6, pointBackgroundColor: color, fill: true, backgroundColor: color + '20' }] },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+        }
+        
+        // ============================================
+        // BOSHLASH
+        // ============================================
+        displayResults();
+        showGraph('kambagallik');
+    </script>
+</body>
+</html>
