@@ -1,1 +1,0 @@
-# ijtimoiy-statistika-index.html
